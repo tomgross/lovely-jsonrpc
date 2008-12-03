@@ -1,0 +1,28 @@
+=====================
+JSON-RPC Client Proxy
+=====================
+
+    >>> from lovely.jsonrpc import proxy
+
+This is a client side proxy that behaves like a local object but
+executes methods on remote jsonrpc services. By default python's
+httplib is used on the transport layer.
+
+We use a testing server to demonstrate this.
+
+    >>> from lovely.jsonrpc import testing
+    >>> server = testing.get_server()
+
+    >>> client = proxy.ServerProxy('http://localhost:12345')
+
+The testserver has an echo method that returns all args and
+kwargs. But we have to tell the server that it should handle a request.
+
+    >>> testing.one_request(server)
+    >>> client.echo(1)
+    [[1], {}]
+
+    >>> testing.one_request(server)
+    >>> client.echo(u'one', x=1, y={'first': 123})
+    [[u'one'], {u'y': {u'first': 123}, u'x': 1}]
+
