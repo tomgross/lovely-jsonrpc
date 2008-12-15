@@ -16,13 +16,64 @@ We use a testing server to demonstrate this.
     >>> client = proxy.ServerProxy('http://localhost:12345')
 
 The testserver has an echo method that returns all args and
-kwargs. But we have to tell the server that it should handle a request.
+kwargs. But we have to tell the server that it should handle a
+request. Additionally the request headers are also printed.
 
     >>> testing.one_request(server)
-    >>> client.echo(1)
+    >>> res = client.echo(1)
+    HTTP_ACCEPT application/json
+    HTTP_ACCEPT_ENCODING identity
+    HTTP_HOST localhost:12345
+    HTTP_USER_AGENT lovey.jsonpc.proxy (httplib)
+    >>> res
     [[1], {}]
 
     >>> testing.one_request(server)
-    >>> client.echo(u'one', x=1, y={'first': 123})
+    >>> res = client.echo(u'one', x=1, y={'first': 123})
+    HTTP_ACCEPT application/json
+    HTTP_ACCEPT_ENCODING identity
+    HTTP_HOST localhost:12345
+    HTTP_USER_AGENT lovey.jsonpc.proxy (httplib)
+
+    >>> res
     [[u'one'], {u'y': {u'first': 123}, u'x': 1}]
 
+Session handling
+================
+
+In order to authenticate the rpc request a special session object is
+used. For basic authentication we can set credentials when
+constructing the session object.
+
+
+    >>> session = proxy.Session(username='mgr', password='pw')
+    >>> client = proxy.ServerProxy('http://localhost:12345', session=session)
+    >>> testing.one_request(server)
+
+Now we have basic auth headers.
+
+    >>> res = client.echo(1)
+    HTTP_ACCEPT application/json
+    HTTP_ACCEPT_ENCODING identity
+    HTTP_AUTHORIZATION Basic Vm9yc2NoYXU6SXN3d2Ruc3VkaTEw
+    HTTP_COOKIE
+    HTTP_HOST localhost:12345
+    HTTP_USER_AGENT lovey.jsonpc.proxy (httplib)
+
+    >>> res
+    [[1], {}]
+
+If a cookie was sent (which is done by our testing ap) it is sent with
+the next request.
+
+    >>> testing.one_request(server)
+    >>> res = client.echo(1)
+    HTTP_ACCEPT application/json
+    HTTP_ACCEPT_ENCODING identity
+    HTTP_AUTHORIZATION Basic Vm9yc2NoYXU6SXN3d2Ruc3VkaTEw
+    HTTP_COOKIE x=1
+    HTTP_HOST localhost:12345
+    HTTP_USER_AGENT lovey.jsonpc.proxy (httplib)
+
+    >>> res
+    [[1], {}]
