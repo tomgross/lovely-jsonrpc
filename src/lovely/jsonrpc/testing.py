@@ -25,10 +25,27 @@ class TestingAPI(object):
     def echo(self, *args, **kwargs):
         return args, kwargs
 
+
+class App(object):
+
+    def __init__(self, wrapped):
+        self.wrapped = wrapped
+
+    def __call__(self, environ, start_response):
+        for k in [k for k in sorted(environ) if k.startswith('HTTP_')]:
+            print k, environ[k]
+        res = self.wrapped(environ, lambda s, h: self.start_response(
+            start_response, s, h))
+        return res
+
+    def start_response(self, sr, status, headers):
+        headers += (('Set-Cookie', 'x=1'),)
+        return sr(status, headers)
+
 def get_server(port=12345):
     api = TestingAPI()
     app = wsgi.WSGIJSONRPCApplication(api)
-    return  make_server('localhost', 12345, app)
+    return  make_server('localhost', 12345, App(app))
 
 class OneRequest(threading.Thread):
 

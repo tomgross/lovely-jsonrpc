@@ -18,6 +18,8 @@
 
 from urlparse import urlparse
 from lovely.jsonrpc import dispatcher
+import Cookie
+import base64
 
 class RemoteException(Exception):
     """An error occured on the server side"""
@@ -28,6 +30,27 @@ class HTTPException(Exception):
 class JSONDeserializeException(Exception):
     """A json deserialization error occured"""
 
+class Session(object):
+
+    _auth = None
+
+    def __init__(self, username=None, password=None):
+        self.cookies = Cookie.SmartCookie()
+        if username and password:
+            self._auth = {"AUTHORIZATION": "Basic %s" %
+                          base64.encodestring("%s:%s" % ('Vorschau', 'Iswwdnsudi10')
+                                              ).strip()}
+
+    def save_headers(self, headers):
+        if self._auth:
+            headers.update(self._auth)
+        headers['Cookie'] = self.cookies.output(header="")
+        return headers
+
+    def load_headers(self, headers):
+        ch = headers.get('set-cookie')
+        if ch:
+            self.cookies.load(ch)
 
 class JSONRPCTransport(object):
 
@@ -37,8 +60,9 @@ class JSONRPCTransport(object):
                'Content-Type':'application/json',
                'Accept':'application/json'}
 
-    def __init__(self, uri, headers={}):
+    def __init__(self, uri, session=None, headers={}):
         import httplib
+        self.session = session
         self.url = urlparse(uri)
         self.headers = self.headers.copy()
         self.headers.update(headers)
@@ -56,11 +80,17 @@ class JSONRPCTransport(object):
         self.conn = conn_impl(loc)
 
     def request(self, request_body):
+        if self.session:
+            headers = self.session.save_headers(self.headers.copy())
+        else:
+            headers = self.headers
         self.conn.request('POST', self.url.path,
-                          body=request_body, headers=self.headers)
+                          body=request_body, headers=headers)
         resp = self.conn.getresponse()
-        return resp.status, resp.read()
+        if self.session:
+            self.session.load_headers(dict(resp.getheaders()))
 
+        return resp.status, resp.read()
 
 class ServerProxy(object):
 
