@@ -5,6 +5,9 @@ lovely.jsonrpc changes
 trunk
 =====
 
+2008/12/15 0.0.1a2:
+===================
+
 - session handling added
 
 
