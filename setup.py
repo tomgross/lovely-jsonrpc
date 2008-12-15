@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="lovely.jsonrpc",
-    version="0.0.1a1",
+    version="0.0.1a2",
     packages=find_packages('src'),
     package_dir = {'':'src'},
     zip_safe = True,
