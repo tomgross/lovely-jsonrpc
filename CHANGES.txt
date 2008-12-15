@@ -2,3 +2,7 @@
 lovely.jsonrpc changes
 ======================
 
+trunk
+=====
+
+- session handling added
