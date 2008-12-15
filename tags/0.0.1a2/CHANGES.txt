@@ -1,0 +1,19 @@
+======================
+lovely.jsonrpc changes
+======================
+
+trunk
+=====
+
+2008/12/15 0.0.1a2:
+===================
+
+- session handling added
+
+
+2008/12/08 0.0.1a1:
+===================
+
+Note: This was an internal release.
+
+- initial release
