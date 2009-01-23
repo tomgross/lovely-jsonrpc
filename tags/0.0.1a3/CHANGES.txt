@@ -1,0 +1,23 @@
+======================
+lovely.jsonrpc changes
+======================
+
+2009/01/23 0.0.1a3:
+===================
+
+- Added a transport for the client proxy that uses the urlfetch module
+  of google appengine. This can be used to do make rpc calls from an
+  appengine app.
+
+2008/12/15 0.0.1a2:
+===================
+
+- session handling added
+
+
+2008/12/08 0.0.1a1:
+===================
+
+Note: This was an internal release.
+
+- initial release
