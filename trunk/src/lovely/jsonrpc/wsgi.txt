@@ -54,7 +54,7 @@ We get a RemoteException now.
     >>> client.zero_division()
     Traceback (most recent call last):
     ...
-    RemoteException: {u'message': u'Server Exception ::
-    integer division or modulo by zero', u'type':
-    u"<type 'exceptions.ZeroDivisionError'>"}
+    RemoteException: {'message': 'Server Exception ::
+    integer division or modulo by zero',
+    'type': "<type 'exceptions.ZeroDivisionError'>"}
 

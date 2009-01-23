@@ -5,6 +5,10 @@ lovely.jsonrpc changes
 trunk
 =====
 
+- Added a transport for the client proxy that uses the urlfetch module
+  of google appengine. This can be used to do make rpc calls from an
+  appengine app.
+
 2008/12/15 0.0.1a2:
 ===================
 

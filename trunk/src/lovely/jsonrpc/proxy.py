@@ -52,7 +52,29 @@ class Session(object):
         if ch:
             self.cookies.load(ch)
 
-class JSONRPCTransport(object):
+class BaseTransport(object):
+
+    """Base transport implementation"""
+
+    headers = {}
+
+    def __init__(self, uri, session=None, headers={}):
+        self.session = session
+        self.headers = self.headers.copy()
+        self.headers.update(headers)
+
+    def get_headers(self):
+        if self.session:
+            headers = self.session.save_headers(self.headers.copy())
+        else:
+            headers = self.headers
+        return headers
+
+    def set_headers(self, headers):
+        if headers and self.session:
+            self.session.load_headers(headers)
+
+class JSONRPCTransport(BaseTransport):
 
     """the default httplib transport implementation"""
 
@@ -61,11 +83,10 @@ class JSONRPCTransport(object):
                'Accept':'application/json'}
 
     def __init__(self, uri, session=None, headers={}):
-        import httplib
-        self.session = session
+        super(JSONRPCTransport, self).__init__(uri, session=session,
+                                               headers=headers)
         self.url = urlparse(uri)
-        self.headers = self.headers.copy()
-        self.headers.update(headers)
+        import httplib
         if self.url.scheme == 'http':
             conn_impl = httplib.HTTPConnection
         elif self.url.scheme == 'https':
@@ -80,17 +101,37 @@ class JSONRPCTransport(object):
         self.conn = conn_impl(loc)
 
     def request(self, request_body):
-        if self.session:
-            headers = self.session.save_headers(self.headers.copy())
-        else:
-            headers = self.headers
+        headers = self.get_headers()
         self.conn.request('POST', self.url.path,
                           body=request_body, headers=headers)
         resp = self.conn.getresponse()
-        if self.session:
-            self.session.load_headers(dict(resp.getheaders()))
-
+        self.set_headers(dict(resp.getheaders()))
         return resp.status, resp.read()
+
+class GAEJSONRPCTransport(BaseTransport):
+
+    """transport using gae urlfetch"""
+
+    headers = {'User-Agent':'lovey.jsonpc.proxy (urlfetch)',
+               'Content-Type':'application/json',
+               'Accept':'application/json'}
+
+    def __init__(self, uri, session=None, headers={}):
+        from google.appengine.api import urlfetch
+        super(GAEJSONRPCTransport, self).__init__(
+            uri, session=session, headers=headers)
+        self.uri = uri
+        self.fetch = urlfetch.fetch
+
+    def request(self, request_body):
+        headers = self.get_headers()
+        resp = self.fetch(self.uri, payload=request_body,
+                          method='POST',
+                          headers=headers,
+                          follow_redirects=False)
+        self.set_headers(resp.headers)
+        return resp.status_code, resp.content
+
 
 class ServerProxy(object):
 
