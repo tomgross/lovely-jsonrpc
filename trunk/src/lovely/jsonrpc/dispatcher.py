@@ -28,6 +28,8 @@ _descriptions = set(['summary', 'help', 'idempotent', 'params', 'return'])
 class JSONRPCError(Exception):
     """JSONRPC Error"""
 
+class BadJSONRequestError(Exception):
+    """Cannot parse JSON-RPC request body"""
 
 def describe_method(method):
     """Check is a callable object has description params set"""
