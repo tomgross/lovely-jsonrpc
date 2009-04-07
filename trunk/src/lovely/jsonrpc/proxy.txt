@@ -20,6 +20,15 @@ kwargs. But we have to tell the server that it should handle a
 request. Additionally the request headers are also printed.
 
     >>> testing.one_request(server)
+    >>> res = client.echo()
+    HTTP_ACCEPT application/json
+    HTTP_ACCEPT_ENCODING identity
+    HTTP_HOST localhost:12345
+    HTTP_USER_AGENT lovey.jsonpc.proxy (httplib)
+    >>> res
+    [[], {}]
+
+    >>> testing.one_request(server)
     >>> res = client.echo(1)
     HTTP_ACCEPT application/json
     HTTP_ACCEPT_ENCODING identity

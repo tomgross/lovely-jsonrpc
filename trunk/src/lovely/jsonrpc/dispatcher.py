@@ -163,7 +163,7 @@ class JSONRPCDispatcher(object):
 
         logged_failure = False
 
-        params = rpc_request.get('params', None)
+        params = rpc_request.get('params', [])
         args = []
         kwargs = {}
         if type(params) is types.DictType:
