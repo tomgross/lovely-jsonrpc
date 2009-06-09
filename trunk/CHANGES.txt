@@ -2,6 +2,13 @@
 lovely.jsonrpc changes
 ======================
 
+2009/06/09 0.0.1a5:
+===================
+
+- implemented compatibily mode for JSONRPC v1.0 which requires
+  an id in post requests. for details see
+  http://json-rpc.org/wd/JSON-RPC-1-1-WD-20060807.html#PostProcedureCall
+
 2009/04/07 0.0.1a4:
 ===================
 
