@@ -136,7 +136,7 @@ class GAEJSONRPCTransport(BaseTransport):
 class ServerProxy(object):
 
     def __init__(self, uri, transport_impl=JSONRPCTransport,
-                 json_impl=None, **kwargs):
+                 json_impl=None, send_id=False, **kwargs):
         """Initialization"""
         self._transport = transport_impl(uri, **kwargs)
         if json_impl is None:
@@ -144,6 +144,7 @@ class ServerProxy(object):
             self._json_impl = simplejson
         else:
             self._json_impl = json_impl
+        self._send_id = send_id
 
     def _request(self, payload):
         status, body = self._transport.request(payload)
@@ -166,5 +167,6 @@ class ServerProxy(object):
     __str__ = __repr__
 
     def __getattr__(self, name):
-        return dispatcher._Method(self._request, name, self._json_impl)
+        return dispatcher._Method(self._request, name, self._json_impl,
+                                  self._send_id)
 
