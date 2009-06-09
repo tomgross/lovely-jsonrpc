@@ -20,6 +20,7 @@ import types
 import logging
 import sys, traceback
 import copy
+import time
 
 _log = logging.getLogger(__name__)
 
@@ -223,16 +224,19 @@ class JSONRPCDispatcher(object):
 
 class _Method(object):
 
-    def __init__(self, call, name, json_impl):
+    def __init__(self, call, name, json_impl, send_id):
         self.call = call
         self.name = name
         self.json_impl = json_impl
+        self.send_id = send_id
 
     def __call__(self, *args, **kwargs):
         # Need to handle keyword arguments per 1.1 spec
         request = {}
         request['version'] = '1.1'
         request['method'] = self.name
+        if self.send_id:
+            request['id'] = int(time.time())
         if len(kwargs) is not 0:
             params = copy.copy(kwargs)
             index = 0

@@ -105,3 +105,16 @@ The proxy is created like this.
     ...
     ImportError: No module named google.appengine.api
 
+
+Compatibility-Mode
+==================
+
+For compatibilty to JSONRPC v1.0 we have to pass the id to the request::
+
+    >>> testing.one_request(server)
+    >>> c = proxy.ServerProxy('http://localhost:12345', send_id=True)
+    >>> res = c.echo()
+    HTTP_ACCEPT application/json
+    HTTP_ACCEPT_ENCODING identity
+    HTTP_HOST localhost:12345
+    HTTP_USER_AGENT lovey.jsonpc.proxy (httplib)
