@@ -2,6 +2,12 @@
 lovely.jsonrpc changes
 ======================
 
+branch
+======
+
+- added timeout support (requires python2.6 of GAE python)
+- removed GAETransport (not longer required since GAE emulates httplib)
+
 2009/06/09 0.0.1a5:
 ===================
 
