@@ -82,7 +82,7 @@ class JSONRPCTransport(BaseTransport):
                'Content-Type':'application/json',
                'Accept':'application/json'}
 
-    def __init__(self, uri, session=None, headers={}):
+    def __init__(self, uri, session=None, headers={}, timeout=None):
         super(JSONRPCTransport, self).__init__(uri, session=session,
                                                headers=headers)
         self.url = urlparse(uri)
@@ -98,7 +98,10 @@ class JSONRPCTransport(BaseTransport):
                             str(self.url.port)))
         else:
             loc = self.url.hostname
-        self.conn = conn_impl(loc)
+        if timeout is not None:
+            self.conn = conn_impl(loc, timeout=timeout)
+        else:
+            self.conn = conn_impl(loc)
 
     def request(self, request_body):
         headers = self.get_headers()
@@ -107,30 +110,6 @@ class JSONRPCTransport(BaseTransport):
         resp = self.conn.getresponse()
         self.set_headers(dict(resp.getheaders()))
         return resp.status, resp.read()
-
-class GAEJSONRPCTransport(BaseTransport):
-
-    """transport using gae urlfetch"""
-
-    headers = {'User-Agent':'lovey.jsonpc.proxy (urlfetch)',
-               'Content-Type':'application/json',
-               'Accept':'application/json'}
-
-    def __init__(self, uri, session=None, headers={}):
-        from google.appengine.api import urlfetch
-        super(GAEJSONRPCTransport, self).__init__(
-            uri, session=session, headers=headers)
-        self.uri = uri
-        self.fetch = urlfetch.fetch
-
-    def request(self, request_body):
-        headers = self.get_headers()
-        resp = self.fetch(self.uri, payload=request_body,
-                          method='POST',
-                          headers=headers,
-                          follow_redirects=False)
-        self.set_headers(resp.headers)
-        return resp.status_code, resp.content
 
 
 class ServerProxy(object):
