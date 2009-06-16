@@ -2,6 +2,14 @@
 lovely.jsonrpc changes
 ======================
 
+branch
+======
+
+- added timeout support (usage requires python-2.6 OR appengine SDK which
+                         supports HTTP(S)Connection timeouts under
+                         python-2.5 as well)
+- removed GAETransport (not longer required since GAE emulates httplib)
+
 2009/06/09 0.0.1a5:
 ===================
 
