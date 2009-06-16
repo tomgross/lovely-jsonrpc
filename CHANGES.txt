@@ -2,8 +2,8 @@
 lovely.jsonrpc changes
 ======================
 
-branch
-======
+2009/06/16 0.0.1:
+=================
 
 - added timeout support (usage requires python-2.6 OR appengine SDK which
                          supports HTTP(S)Connection timeouts under
