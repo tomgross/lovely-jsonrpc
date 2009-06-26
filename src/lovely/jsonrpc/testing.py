@@ -19,6 +19,7 @@
 from lovely.jsonrpc import wsgi
 import threading
 from wsgiref.simple_server import make_server
+from lovely.jsonrpc import dispatcher
 
 class TestingAPI(object):
 
@@ -44,7 +45,7 @@ class App(object):
 
 def get_server(port=12345):
     api = TestingAPI()
-    app = wsgi.WSGIJSONRPCApplication(api)
+    app = wsgi.WSGIJSONRPCApplication({'':dispatcher.JSONRPCDispatcher(api)})
     return  make_server('localhost', 12345, App(app))
 
 class OneRequest(threading.Thread):

@@ -2,6 +2,13 @@
 lovely.jsonrpc changes
 ======================
 
+trunk
+=====
+
+- INCOMPATIBLE CHANGE: constructor of wsgi application now takes a
+  dict with dispatchers in the constructor for defining multiple
+  entry-points.
+
 2009/06/16 0.0.1:
 =================
 
