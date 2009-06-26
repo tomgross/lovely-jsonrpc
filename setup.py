@@ -24,5 +24,7 @@ setup(
     platforms = ('Any',),
     namespace_packages = ['lovely'],
     install_requires = ['setuptools'],
-    extras_require = dict(test=['zope.testing', 'simplejson']),
+    extras_require = dict(test=['zope.testing',
+                                'simplejson',
+                                'webtest']),
     )

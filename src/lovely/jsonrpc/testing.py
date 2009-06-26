@@ -20,6 +20,7 @@ from lovely.jsonrpc import wsgi
 import threading
 from wsgiref.simple_server import make_server
 from lovely.jsonrpc import dispatcher
+from lovely.jsonrpc import proxy
 
 class TestingAPI(object):
 
@@ -59,3 +60,26 @@ class OneRequest(threading.Thread):
 
 def one_request(server):
     OneRequest(server).start()
+
+
+class TestJSONRPCTransport(object):
+    """transport for testing"""
+
+    def __init__(self, base, app):
+        self.base = base
+        self._client = app
+
+    def request(self, requestBody):
+        self._client.lastRequestBody = requestBody
+        resp = self._client.post(self.base, requestBody,
+                                 content_type="application/json")
+        return resp.status_int, resp.body
+
+def TestJSONRPCProxy(base, app):
+    import simplejson
+    return proxy.ServerProxy(
+        base,
+        json_impl = simplejson,
+        transport_impl=TestJSONRPCTransport,
+        app=app)
+
