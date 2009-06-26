@@ -2,8 +2,8 @@
 lovely.jsonrpc changes
 ======================
 
-trunk
-=====
+2009/06/26 0.1.0a1:
+===================
 
 - added a testing transport for proxy that is compatible with webtest
 
