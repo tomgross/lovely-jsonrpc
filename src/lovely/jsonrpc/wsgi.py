@@ -47,16 +47,24 @@ class WSGIJSONRPCApplication(object):
             try:
                 _log.debug('Sending %s to dispatcher' % body)
                 response = dispatcher.dispatch(body)
-                start_response('200 OK', [('Cache-Control','no-cache'), ('Pragma','no-cache'),
-                                          ('Content-Type', 'application/json')])
+                start_response('200 OK',
+                               [('Cache-Control','no-cache'),
+                                ('Pragma','no-cache'),
+                                ('Content-Type', 'application/json')])
                 return [response]
             except Exception, e:
-                _log.exception('WSGIJSONRPCApplication Dispatcher excountered exception')
-                start_response('500 Internal Server Error', [('Cache-Control','no-cache'), ('Content-Type', 'text/plain')])
+                _log.exception(
+                    'WSGIJSONRPCApplication Dispatcher encountered exception')
+                start_response(
+                    '500 Internal Server Error',
+                    [('Cache-Control','no-cache'),
+                     ('Content-Type', 'text/plain')])
                 return ['500 Internal Server Error']
 
         else:
-            start_response('405 Method Not Allowed', [('Cache-Control','no-cache'), ('Content-Type', 'text/plain')])
+            start_response('405 Method Not Allowed',
+                           [('Cache-Control','no-cache'),
+                            ('Content-Type', 'text/plain')])
             return ['405 Method Not Allowed. This JSONRPC interface only supports POST. Method used was "'+str(environ['REQUEST_METHOD'])+'"']
 
     def __call__(self, environ, start_response):
