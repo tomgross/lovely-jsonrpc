@@ -7,17 +7,26 @@ entrypoint.
 
     >>> from lovely.jsonrpc import wsgi
 
-The wsgi app is actually a subclass of dispacher. So we need to
-initialize it with some methods or an instance of an api.
+The wsgi app takes a dictionary of entrypoints along with dispatchers
+as constructor arugments. So first we need to create a dispatcher.
 
-    >>> app = wsgi.WSGIJSONRPCApplication()
+    >>> from lovely.jsonrpc import dispatcher
+    >>> demo1 = dispatcher.JSONRPCDispatcher()
+    >>> demo2 = dispatcher.JSONRPCDispatcher()
 
-Let us register a simple method.
+Now we create the app.
+
+    >>> app = wsgi.WSGIJSONRPCApplication(
+    ...     {'demo1':demo1,
+    ...      'demo2':demo2}
+    ...     )
+
+Let us register a simple method on demo1.
 
     >>> def echo(s):
     ...     return s
 
-    >>> app.register_method(echo, 'echo')
+    >>> demo1.register_method(echo, 'echo')
 
 We start a simple server.
 
@@ -31,30 +40,52 @@ Let the server handle one request.
     ...     def run(self):
     ...         server.handle_request()
 
-    >>> OneRequest().start()
 
 Let us set up a client.
 
     >>> from lovely.jsonrpc import proxy
-    >>> client = proxy.ServerProxy('http://localhost:12345')
-    >>> client.echo(1)
+
+    >>> client1 = proxy.ServerProxy('http://localhost:12345/demo1')
+    >>> client2 = proxy.ServerProxy('http://localhost:12345/demo2')
+
+    >>> OneRequest().start()
+    >>> client1.echo(1)
     1
+
+If the method is not found a 500 is raised.
+
+    >>> OneRequest().start()
+    >>> client2.echo(1)
+    Traceback (most recent call last):
+    ...
+    RemoteException: {'message': 'no such method', 'type': 'JSONRPCError'}
+
 
 Let us register another method that fails.
 
     >>> def zero_division():
     ...     return 1/0
 
-    >>> app.register_method(zero_division, 'zero_division')
+    >>> demo1.register_method(zero_division, 'zero_division')
 
     >>> OneRequest().start()
 
 We get a RemoteException now.
 
-    >>> client.zero_division()
+    >>> client1.zero_division()
     Traceback (most recent call last):
     ...
     RemoteException: {'message': 'Server Exception ::
     integer division or modulo by zero',
     'type': "<type 'exceptions.ZeroDivisionError'>"}
+
+If the entrypoint is not found a 404 is raised.
+
+    >>> client3 = proxy.ServerProxy('http://localhost:12345/notthere')
+    >>> OneRequest().start()
+    >>> client3.echo(1)
+    Traceback (most recent call last):
+    ...
+    HTTPException: 404
+    '404 Not found'
 

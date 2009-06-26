@@ -21,14 +21,24 @@ import logging
 
 _log = logging.getLogger(__name__)
 
-class WSGIJSONRPCApplication(dispatcher.JSONRPCDispatcher):
+class WSGIJSONRPCApplication(object):
 
     """Ac WSGI Application for generic JSONRPC requests."""
+
+    def __init__(self, dispatchers):
+        self.dispatchers = dispatchers
 
     def handler(self, environ, start_response):
         """A WSGI handler for generic JSONRPC requests."""
 
         if environ['REQUEST_METHOD'].endswith('POST'):
+            entry_point = environ.get('PATH_INFO', '')[1:]
+            dispatcher = self.dispatchers.get(entry_point)
+            if not dispatcher:
+                start_response('404 NotFound',
+                               [('Cache-Control','no-cache'),
+                                ('Content-Type', 'text/plain')])
+                return ['404 Not found']
             body = None
             if environ.get('CONTENT_LENGTH'):
                 length = int(environ['CONTENT_LENGTH'])
@@ -36,7 +46,7 @@ class WSGIJSONRPCApplication(dispatcher.JSONRPCDispatcher):
 
             try:
                 _log.debug('Sending %s to dispatcher' % body)
-                response = self.dispatch(body)
+                response = dispatcher.dispatch(body)
                 start_response('200 OK', [('Cache-Control','no-cache'), ('Pragma','no-cache'),
                                           ('Content-Type', 'application/json')])
                 return [response]
