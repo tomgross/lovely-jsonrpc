@@ -5,6 +5,8 @@ lovely.jsonrpc changes
 trunk
 =====
 
+- added a testing transport for proxy that is compatible with webtest
+
 - INCOMPATIBLE CHANGE: constructor of wsgi application now takes a
   dict with dispatchers in the constructor for defining multiple
   entry-points.
