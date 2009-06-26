@@ -6,6 +6,6 @@ default_expiration: 1d
 
 handlers:
 
-- url: /*
+- url: /.*
   script: main.py
 

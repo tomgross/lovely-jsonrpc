@@ -1,0 +1,34 @@
+============
+Installation
+============
+
+Requirements
+============
+
+- Google App Engine SDK 2.1.3 installed and dev_appserver.py on path
+
+- Python 2.5 installed
+
+Sandbox Installation
+====================
+
+In this directory run::
+
+ python2.5 bootstrap.py
+ ./bin/buildout
+
+Starting
+========
+
+  ./bin/instance
+
+Running Tests
+=============
+
+  ./bin/test
+
+For online tests at level 2.
+
+  ./bin/test --all
+
+
