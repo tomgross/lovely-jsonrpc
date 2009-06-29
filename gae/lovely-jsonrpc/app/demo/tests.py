@@ -54,7 +54,7 @@ def test_suite():
         )
     readme_gae.level=2
     s = unittest.TestSuite((
-        #readme_local,
+        readme_local,
         readme_gae
         ))
     return s
