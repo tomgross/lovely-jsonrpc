@@ -38,7 +38,7 @@ class Session(object):
         self.cookies = Cookie.SmartCookie()
         if username and password:
             self._auth = {"AUTHORIZATION": "Basic %s" %
-                          base64.encodestring("%s:%s" % ('Vorschau', 'Iswwdnsudi10')
+                          base64.encodestring("%s:%s" % (username, password)
                                               ).strip()}
 
     def save_headers(self, headers):
