@@ -15,6 +15,7 @@ We use a testing server to demonstrate this.
 
     >>> client = proxy.ServerProxy('http://localhost:12345')
 
+
 The testserver has an echo method that returns all args and
 kwargs. But we have to tell the server that it should handle a
 request. Additionally the request headers are also printed.
@@ -64,7 +65,7 @@ Now we have basic auth headers.
     >>> res = client.echo(1)
     HTTP_ACCEPT application/json
     HTTP_ACCEPT_ENCODING identity
-    HTTP_AUTHORIZATION Basic Vm9yc2NoYXU6SXN3d2Ruc3VkaTEw
+    HTTP_AUTHORIZATION Basic bWdyOnB3
     HTTP_COOKIE
     HTTP_HOST localhost:12345
     HTTP_USER_AGENT lovey.jsonpc.proxy (httplib)
@@ -79,7 +80,7 @@ the next request.
     >>> res = client.echo(1)
     HTTP_ACCEPT application/json
     HTTP_ACCEPT_ENCODING identity
-    HTTP_AUTHORIZATION Basic Vm9yc2NoYXU6SXN3d2Ruc3VkaTEw
+    HTTP_AUTHORIZATION Basic bWdyOnB3
     HTTP_COOKIE x=1
     HTTP_HOST localhost:12345
     HTTP_USER_AGENT lovey.jsonpc.proxy (httplib)

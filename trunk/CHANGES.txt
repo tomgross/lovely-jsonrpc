@@ -2,6 +2,12 @@
 lovely.jsonrpc changes
 ======================
 
+
+2009/10/02 0.1.1:
+=================
+
+- bugfix: using passed credentials (not longer hardcoded one)
+
 2009/06/26 0.1.0a1:
 ===================
 
