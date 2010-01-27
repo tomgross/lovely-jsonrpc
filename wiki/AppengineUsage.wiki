@@ -1,4 +1,4 @@
-#How to use this package with appengine
+How to use lovely.jsonrpc with appengine
 
 = Introduction =
 
