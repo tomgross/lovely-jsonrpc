@@ -26,5 +26,6 @@ setup(
     install_requires = ['setuptools'],
     extras_require = dict(test=['zope.testing',
                                 'simplejson',
+                                'tornado',
                                 'webtest']),
     )

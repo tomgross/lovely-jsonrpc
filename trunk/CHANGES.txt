@@ -2,6 +2,10 @@
 lovely.jsonrpc changes
 ======================
 
+trunk
+=====
+
+- added tornado handler
 
 2009/10/02 0.1.1:
 =================

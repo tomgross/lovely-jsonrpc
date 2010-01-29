@@ -29,5 +29,8 @@ def test_suite():
     wsgi = DocFileSuite('wsgi.txt',
             optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS,
                              )
-    s = unittest.TestSuite((dispatcher, proxy, wsgi))
+    tornado = DocFileSuite('tornadohandler.txt',
+            optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS,
+                             )
+    s = unittest.TestSuite((dispatcher, proxy, wsgi, tornado))
     return s
