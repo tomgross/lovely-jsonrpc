@@ -5,6 +5,9 @@ lovely.jsonrpc changes
 trunk
 =====
 
+2010/02/08 0.2.0:
+=================
+
 - replaced SmartCookie with SimpleCookie to avoid deprecation warning
 
 - added tornado handler
