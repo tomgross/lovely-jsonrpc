@@ -35,7 +35,7 @@ class Session(object):
     _auth = None
 
     def __init__(self, username=None, password=None):
-        self.cookies = Cookie.SmartCookie()
+        self.cookies = Cookie.SimpleCookie()
         if username and password:
             self._auth = {"AUTHORIZATION": "Basic %s" %
                           base64.encodestring("%s:%s" % (username, password)
