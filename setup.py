@@ -21,7 +21,7 @@ setup(
     package_dir = {'':'src'},
     zip_safe = True,
     include_package_data = False,
-    platforms = ('Any',),
+    platforms = ['Any'],
     namespace_packages = ['lovely'],
     install_requires = ['setuptools'],
     extras_require = dict(test=['zope.testing',
