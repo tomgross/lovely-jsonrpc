@@ -14,7 +14,7 @@ setup(
     description = 'Python JSONRPC package',
     long_description = longDesc,
     keywords = "JSON RPC JSONRPC WSGI",
-    author = "Lovely Systems AG",
+    author = "Lovely Systems GmbH",
     author_email = "bernddorn@gmail.com",
     url = 'http://code.google.com/p/lovely-jsonrpc',
     packages=find_packages('src'),
