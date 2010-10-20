@@ -5,6 +5,11 @@ lovely.jsonrpc changes
 trunk
 =====
 
+- compat with tornado 1.1
+
+- use python2.6 json implementation by default and fallback to
+  simplejson if not specific json implementation is given
+
 2010/02/08 0.2.0:
 =================
 

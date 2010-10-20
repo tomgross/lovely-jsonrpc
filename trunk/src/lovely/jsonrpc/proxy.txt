@@ -123,3 +123,25 @@ http timeout::
     timeout: timed out
 
 
+JSON Implementation
+===================
+
+It is possible to use a specific json implementation for the
+proxy. The default implementation is the json module of Python2.6 and
+on lower python versions simplejson gets used.
+
+If the json implementation is None an exception gets raised.
+
+    >>> client = proxy.ServerProxy('http://localhost:12345',
+    ...                            json_impl=None)
+    Traceback (most recent call last):
+    ...
+    JSONImplementationNotFound: Unable to find any json implementation you need either Python 2.6+ or simplejson installed
+
+For example if you prefer simplejson over pythons built in
+implementation you can override it.
+
+    >>> import simplejson
+    >>> client = proxy.ServerProxy('http://localhost:12345',
+    ...                            json_impl=simplejson)
+

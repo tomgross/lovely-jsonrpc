@@ -21,6 +21,7 @@ import logging
 import sys, traceback
 import copy
 import time
+from lovely.jsonrpc import DEFAULT_JSON_IMPL, JSONImplementationNotFound
 
 _log = logging.getLogger(__name__)
 
@@ -46,15 +47,13 @@ class JSONRPCDispatcher(object):
     def __init__(self, instance=None, methods=None,
                  name='Python JSONRPC Service',
                  summary='Service dispatched by python JSONRPCDispatcher',
-                 help=None, address=None, json_impl=None):
+                 help=None, address=None, json_impl=DEFAULT_JSON_IMPL):
 
         """Initialization. Can take an instance to register upon initialization"""
 
         if json_impl is None:
-            import simplejson
-            self.json_impl = simplejson
-        else:
-            self.json_impl = json_impl
+            raise JSONImplementationNotFound()
+        self.json_impl = json_impl
         self.instances = []
         self.name = name
         self.help = help
