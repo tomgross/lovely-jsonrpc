@@ -20,6 +20,7 @@ from urlparse import urlparse
 from lovely.jsonrpc import dispatcher
 import Cookie
 import base64
+from lovely.jsonrpc import DEFAULT_JSON_IMPL, JSONImplementationNotFound
 
 class RemoteException(Exception):
     """An error occured on the server side"""
@@ -115,14 +116,12 @@ class JSONRPCTransport(BaseTransport):
 class ServerProxy(object):
 
     def __init__(self, uri, transport_impl=JSONRPCTransport,
-                 json_impl=None, send_id=False, **kwargs):
+                 json_impl=DEFAULT_JSON_IMPL, send_id=False, **kwargs):
         """Initialization"""
         self._transport = transport_impl(uri, **kwargs)
         if json_impl is None:
-            import simplejson
-            self._json_impl = simplejson
-        else:
-            self._json_impl = json_impl
+            raise JSONImplementationNotFound()
+        self._json_impl = json_impl
         self._send_id = send_id
 
     def _request(self, payload):

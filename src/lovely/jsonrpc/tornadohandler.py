@@ -4,11 +4,10 @@ class JSONRPCRequestHandler(RequestHandler):
 
     SUPPORTED_METHODS = ("POST",)
 
-    def __init__(self, application, request, transforms=None,
-                 dispatcher=None):
+    def __init__(self, application, request, dispatcher=None, **kwargs):
         assert dispatcher, 'dispatcher is required'
         super(JSONRPCRequestHandler, self).__init__(
-            application, request, transforms=transforms)
+            application, request, **kwargs)
         self.dispatcher = dispatcher
 
     def post(self):
