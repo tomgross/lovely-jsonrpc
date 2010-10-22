@@ -9,7 +9,7 @@ This package includes json-rpc client and server (wsgi) implementation.
 
 setup(
     name="lovely.jsonrpc",
-    version="0.2.0",
+    version="0.2.1",
     license = "Apache License 2.0",
     description = 'Python JSONRPC package',
     long_description = longDesc,
