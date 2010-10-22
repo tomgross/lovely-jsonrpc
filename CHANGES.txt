@@ -2,8 +2,8 @@
 lovely.jsonrpc changes
 ======================
 
-trunk
-=====
+2010/10/22 0.2.1:
+=================
 
 - compat with tornado 1.1
 
