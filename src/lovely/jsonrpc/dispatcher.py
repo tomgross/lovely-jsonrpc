@@ -19,8 +19,6 @@
 import types
 import logging
 import sys, traceback
-import copy
-import time
 from lovely.jsonrpc import DEFAULT_JSON_IMPL, JSONImplementationNotFound
 
 _log = logging.getLogger(__name__)
@@ -221,34 +219,3 @@ class JSONRPCDispatcher(object):
         """Internal method for decoding json objects, uses simplejson"""
         return self.json_impl.loads(json)
 
-class _Method(object):
-
-    def __init__(self, call, name, json_impl, send_id):
-        self.call = call
-        self.name = name
-        self.json_impl = json_impl
-        self.send_id = send_id
-
-    def __call__(self, *args, **kwargs):
-        # Need to handle keyword arguments per 1.1 spec
-        request = {}
-        request['version'] = '1.1'
-        request['method'] = self.name
-        if self.send_id:
-            request['id'] = int(time.time())
-        if len(kwargs) is not 0:
-            params = copy.copy(kwargs)
-            index = 0
-            for arg in args:
-                params[str(index)] = arg
-                index = index + 1
-        elif len(args) is not 0:
-            params = copy.copy(args)
-        else:
-            params = None
-        request['params'] = params
-        _log.debug('Created python request object %s' % str(request))
-        return self.call(self.json_impl.dumps(request))
-
-    def __getattr__(self, name):
-        return _Method(self.call, "%s.%s" % (self.name, name), self.json_impl)
