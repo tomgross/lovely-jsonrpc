@@ -2,6 +2,13 @@
 lovely.jsonrpc changes
 ======================
 
+unreleased
+==========
+
+- added async mode for tornado, see tornadohandler.txt
+
+- exception types are now rendered with the exceptions class name
+
 2010/10/22 0.2.1:
 =================
 

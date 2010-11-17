@@ -21,15 +21,7 @@ Now we can create a dispatcher object for it.
 
     >>> d = dispatcher.JSONRPCDispatcher(api)
 
-Let us now have a look at the valid methods for this dispatcher.
-
     >>> from pprint import pprint
-    >>> pprint(d.get_valid_methods())
-    {u'echo': <bound method MyAPI.echo of <MyAPI object at ...>>,
-     u'system.describe': <bound method JSONRPCDispatcher.system_describe of
-               <lovely.jsonrpc.dispatcher.JSONRPCDispatcher object at ...>>,
-     u'system.list_methods': <bound method JSONRPCDispatcher.system_list_methods
-            of <lovely.jsonrpc.dispatcher.JSONRPCDispatcher object at ...>>}
 
 There are 2 util methods.
 
@@ -51,9 +43,8 @@ Let us dispatch json.
     >>> import simplejson
     >>> req = simplejson.dumps({'method':'echo'})
     >>> pprint(simplejson.loads(d.dispatch(req)))
-    {'error': {'message': 'Server Exception ::
-    echo() takes exactly 2 arguments (1 given)',
-               'type': "<type 'exceptions.TypeError'>"},
+    {'error': {'message': 'echo() takes exactly 2 arguments (1 given)',
+               'type': 'TypeError'},
      'result': None}
 
 Now without exception.
@@ -77,3 +68,18 @@ The special introspection methods are named like a namespace.
                           {'name': 'system.list_methods'}],
                 'sdversion': '1.0',
                 'summary': 'Service dispatched by python JSONRPCDispatcher'}}
+
+
+If the method parameter is not given an error gets returned.
+
+    >>> req = simplejson.dumps({'invalid':'echo'})
+    >>> pprint(simplejson.loads(d.dispatch(req)))
+    {'error': {'message': 'missing method name', 'type': 'JSONRPCError'},
+     'result': None}
+
+If the method cannot be found also.
+
+    >>> req = simplejson.dumps({'method':'not_there'})
+    >>> pprint(simplejson.loads(d.dispatch(req)))
+    {'error': {'message': "method 'not_there' not found", 'type': 'JSONRPCError'},
+     'result': None}

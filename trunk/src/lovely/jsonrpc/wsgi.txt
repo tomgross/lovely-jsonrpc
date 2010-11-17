@@ -40,12 +40,12 @@ Calling a method on proxy.
     >>> client1.echo(1)
     1
 
-If the method is not found a 500 is raised.
+If the method is not found an exception gets raised.
 
     >>> client2.echo(1)
     Traceback (most recent call last):
     ...
-    RemoteException: {'message': 'no such method', 'type': 'JSONRPCError'}
+    RemoteException: {'message': "method 'echo' not found", 'type': 'JSONRPCError'}
 
 Let us register another method that fails.
 
@@ -59,9 +59,8 @@ We get a RemoteException now.
     >>> client1.zero_division()
     Traceback (most recent call last):
     ...
-    RemoteException: {'message': 'Server Exception ::
-    integer division or modulo by zero',
-    'type': "<type 'exceptions.ZeroDivisionError'>"}
+    RemoteException: {'message': 'integer division or modulo by zero',
+                      'type': 'ZeroDivisionError'}
 
 If the entrypoint is not found a 404 is raised.
 
