@@ -20,10 +20,15 @@ import types
 import logging
 import sys, traceback
 from lovely.jsonrpc import DEFAULT_JSON_IMPL, JSONImplementationNotFound
+import functools
 
 _log = logging.getLogger(__name__)
 
 _descriptions = set(['summary', 'help', 'idempotent', 'params', 'return'])
+
+def async(method):
+    method.__async__ = True
+    return method
 
 class JSONRPCError(Exception):
     """JSONRPC Error"""
@@ -39,6 +44,16 @@ def describe_method(method):
             description[key] = getattr(method, key)
     return description
 
+
+class JSONRPCMethod(object):
+
+    def __init__(self, func, cb):
+        self.func = func
+        self.cb
+
+    def __call__(self, *args, **kwargs):
+        res = self.func(*args, **kwargs)
+        
 
 class JSONRPCDispatcher(object):
 
@@ -62,23 +77,17 @@ class JSONRPCDispatcher(object):
         self.base_attributes = set(dir(self))
         self.base_attributes.add('base_attributes')
 
+        self.methods = {
+            u'system.list_methods': self.system_list_methods,
+            u'system.describe': self.system_describe
+            }
+
         # If instance was given during initialization then register it
         if instance is not None:
             self.register_instance(instance)
         if methods is not None:
             for method in methods:
                 self.register_method(method)
-
-        self.__dict__[u'system.list_methods'] = self.system_list_methods
-        self.__dict__[u'system.describe'] = self.system_describe
-
-    def get_valid_methods(self):
-        valid_methods = {}
-        for key, value in self.__dict__.items():
-            if key.startswith('_') is False:
-                if key not in self.base_attributes:
-                    valid_methods[key] = value
-        return valid_methods
 
     def register_instance(self, instance):
         """Registers all attributes of class instance to dispatcher"""
@@ -89,7 +98,6 @@ class JSONRPCDispatcher(object):
 
         # Store it in the list for convienience
         self.instances.append(instance)
-
 
     def register_method(self, function, name=None):
         """Registers a method with the dispatcher"""
@@ -103,24 +111,22 @@ class JSONRPCDispatcher(object):
                 else:
                     raise """Not a function"""
 
-        if self.__dict__.has_key(name) is False:
-            self.__dict__[unicode(name)] = function
+        if not name in self.methods:
+            self.methods[unicode(name)] = function
         else:
             print 'Attribute name conflict -- %s must be removed before attribute of the same name can be added'
-
 
     def system_list_methods(self):
         """List all the available methods and return a object parsable
         that conforms to the JSONRPC Service Procedure Description
         specification"""
         method_list = []
-        for key, value in self.get_valid_methods().items():
+        for key, value in self.methods.items():
             method = {}
             method['name'] = key
             method.update(describe_method(value))
             method_list.append(method)
         method_list.sort()
-        _log.debug('system.list_methods created list %s' % str(method_list))
         return method_list
 
     def system_describe(self):
@@ -136,7 +142,7 @@ class JSONRPCDispatcher(object):
         description['procs'] = self.system_list_methods()
         return description
 
-    def dispatch(self, json):
+    def dispatch(self, json, cb=None):
         """Public dispatcher, verifies that a method exists in it's
         method dictionary and calls it"""
         try:
@@ -145,53 +151,72 @@ class JSONRPCDispatcher(object):
             raise BadJSONRequestError, json
         _log.debug('decoded to python object %s' % str(rpc_request))
 
-        if self.__dict__.has_key(rpc_request[u'method']):
-            _log.debug('dispatcher has key %s' % rpc_request[u'method'])
-            return self._dispatch(rpc_request)
-        else:
-            _log.debug('returning jsonrpc error')
-            return self._encode(result=None, error=JSONRPCError('no such method'))
-
-    def _dispatch(self, rpc_request):
-        """Internal dispatcher, handles all the error checking and
-        calling of methods"""
         result = None
         error = None
-        jsonrpc_id = None
+        jsonrpc_id = rpc_request.get('id')
 
         logged_failure = False
 
-        params = rpc_request.get('params', [])
-        args = []
-        kwargs = {}
-        if type(params) is types.DictType:
-            sargs = []
-            for k, v in params.items():
-                k = str(k)
-                try:
-                    k = int(k)
-                    sargs.append((k, v))
-                except ValueError:
-                    kwargs[k] = v
-            args = [a[1] for a in sorted(sargs)]
-        elif type(params) in (list, tuple):
-            args =  params
-        elif params is not None:
-            # If type was something weird just return a JSONRPC Error
-            raise JSONRPCError, 'params not array or object type'
         try:
-            result = self.__dict__[rpc_request[u'method']](*args, **kwargs)
+            method_name = rpc_request.get('method')
+            if not method_name:
+                raise JSONRPCError('missing method name')
+
+            method = self.methods.get(method_name)
+            if method is None:
+                raise JSONRPCError('method %r not found' % method_name)
+
+            params = rpc_request.get('params', [])
+            args = []
+            kwargs = {}
+            if type(params) is types.DictType:
+                sargs = []
+                for k, v in params.items():
+                    k = str(k)
+                    try:
+                        k = int(k)
+                        sargs.append((k, v))
+                    except ValueError:
+                        kwargs[k] = v
+                args = [a[1] for a in sorted(sargs)]
+            elif type(params) in (list, tuple):
+                args =  params
+            elif params is not None:
+                # If type was something weird just return a JSONRPC Error
+                raise JSONRPCError('params not array or object type')
+        except JSONRPCError, e:
+            res = self._encode(error=e, jsonrpc_id=jsonrpc_id)
+            if cb:
+                return cb(res)
+            else:
+                return res
+
+        cb = functools.partial(self._on_result,
+                               callback=cb, jsonrpc_id=jsonrpc_id)
+        if getattr(method, '__async__', False):
+            method = functools.partial(method, callback=cb)
+            is_async = True
+        else:
+            is_async = False
+        try:
+            result = method(*args, **kwargs)
         except Exception, e:
-            error = JSONRPCError('Server Exception :: %s' % e)
-            error.type = e.__class__
+            error = e
             tb = ''.join(traceback.format_exception(*sys.exc_info()))
             logging.error(tb)
+        if error:
+            return cb(None, error=error)
+        if is_async:
+            return result
+        else:
+            return cb(result)
 
-        if rpc_request.has_key('id'):
-            jsonrpc_id = rpc_request[u'id']
-
-        return self._encode(result=result, error=error, jsonrpc_id=jsonrpc_id)
-
+    def _on_result(self, result, callback=None, jsonrpc_id=None, error=None):
+        res =  self._encode(result=result, jsonrpc_id=jsonrpc_id, error=error)
+        if callback is None:
+            return res
+        else:
+            callback(res)
 
     def _encode(self, result=None, error=None, jsonrpc_id=None):
         """Internal encoder method, handles error formatting, id
@@ -200,16 +225,14 @@ class JSONRPCDispatcher(object):
         response['result'] = result
         if jsonrpc_id is not None:
             response['id'] = jsonrpc_id
-
-
         if error is not None:
+            error_message = str(error).strip()
             if hasattr(error, 'type'):
                 error_type = str(error.type)
-                error_message = str(error)
+            elif hasattr(error, '__class__'):
+                error_type = error.__class__.__name__
             else:
                 error_type = 'JSONRPCError'
-                error_message = str(error).strip()
-
             response['error'] = {'type':error_type,
                                  'message':error_message}
         _log.debug('serializing %s' % str(response))
