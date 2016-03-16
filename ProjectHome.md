@@ -1,0 +1,1 @@
+This package includes json-rpc client and server (wsgi) implementation.
